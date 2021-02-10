@@ -3,6 +3,7 @@ Microscopy Metadata Checklist Generator in Shiny
 <p>
     <img src="MicCheck_UI.png" />
 </p>
+
 ## To add your own metadata examples:
 1. Download all files to your computer (make sure you have R and RStudio installed)
 2. Open metadata_new.txt and examples_new.txt in excel
@@ -13,6 +14,7 @@ Microscopy Metadata Checklist Generator in Shiny
 <p>
     <img src="MicCheck_RunApp.png" />
 </p>
+
 7. To upload your own version to Shiny.io, make an account and from RStudio select "Publish Application..."
 <p>
     <img src="MicCheck_publish.png" />
