@@ -1,0 +1,245 @@
+---
+#title: "Metadata Checklist"
+#author: "Rebecca Senft"
+#date: "1/30/2021"
+header-includes:
+   - \usepackage[default]{sourcesanspro}
+   - \usepackage[T1]{fontenc}
+   - \usepackage{xcolor}
+   - \usepackage{leading}
+mainfont: SourceSansPro
+output: pdf_document
+params:
+  Metadata: Metadata
+  examples: examples
+  modality: modality
+  Q1: Q1
+  Q1b: Q1b
+  Q1c: Q1c
+  Q2: Q2
+  Q3: Q3
+  Q4: Q4
+  Q5: Q5
+  Q6: Q6
+  Q7: Q7
+  Q8: Q8
+  Q9: Q9
+  Q10: Q10
+  showExamples: FALSE
+  
+# Unfortunately, there is a lot of duplication here as I haven't found a way to pass a lot of text dependent on user input into the params list. So this r markdown file re-generates the metadata checklist conditional on rShiny user input.
+# note that $\Box$ doesn't work and in rMarkdown, "- [ ] myLabel" also doesn't work so I used images for checkboxes
+# note an alternative for titles: \centerline{\color{white}\colorbox{black}{Universal Metadata}}\\
+# text color example: Roses are \textcolor{red}{dd}, violets are \textcolor{blue}{blue} 
+---
+\definecolor{cornflower}{rgb}{0.39,0.58,0.93}
+\newcommand\italicblue[1]{\textcolor{cornflower}{\textit{#1}}}
+\leading{14pt}
+\raggedright
+```{r setup, include=FALSE}
+library(pander)
+panderOptions('knitr.auto.asis', FALSE)
+boxSym = "![](checkbox.png){width=1.7%}"
+Metadata = params$Metadata
+examples= params$examples
+#Metadata=read.delim("Metadata_new.txt", header = TRUE, stringsAsFactors = FALSE, na = "", sep = "\t")
+#examples=read.delim("examples_new.txt", header = TRUE, stringsAsFactors = FALSE, na="", sep = "\t")
+```
+\noindent\centerline{\Large{Microscopy Metadata Checklist}} 
+\noindent\centerline{*** Asterisks indicate optional items} 
+\par \vspace{4mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+showExamples=params$showExamples
+#function to append to checklist
+appendChecklist <- function(input, colName, showExamples) {
+  output <- ""
+  if(showExamples==TRUE){
+    for (i in 1:length(colName)) {
+      output <- gsub("%", "\\%", na.omit(examples[[colName]]),fixed=TRUE)
+      output <- gsub("#", "\\#", output,fixed=TRUE)
+      output <- gsub("^", "\\textasciicircum", output,fixed=TRUE)
+      output <- paste0(boxSym, "\\space\\space ", na.omit(Metadata[[colName]]),"\\space\\space\\space\\space", "\\italicblue{",output,"} \\newline")
+    }
+  }
+  else{
+    for (i in 1:length(colName)) {
+      output <- paste0(output, boxSym, "\\space\\space ", na.omit(Metadata[[colName]]),"\\","newline")
+    }
+  }
+  output <- str_replace_all(paste(output),"\"","")
+  output <- str_replace_all(output,'\\*\\*\\*','\\\\*\\\\*\\\\* ')#stop r markdown from displaying asterisks as bold italic
+  output <- append(input,output)
+  return(output) 
+}
+sortItems <-function(str_list){
+  sortedlist <- c()
+  hold <- c()
+  for(item in str_list){
+    if(grepl("\\*\\*\\* ", item, fixed=TRUE)){
+      hold <- append(hold, item)
+    }
+    else{
+      sortedlist <- append(sortedlist, item)
+    }
+  }
+  return(append(sortedlist,hold))}
+```
+\par\vspace{-4mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Microscope Stand and Motorized Components}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+#####  General Stand and Motorized Components
+all = ""
+all <- appendChecklist(all, "all_Stand", showExamples)
+if (length(params$Q4)>0 | (params$Q5)=="Y" | (params$Q6)=="Y"){
+  all <-appendChecklist(all, "Zstack_multiPoint_timeLapse_Stand",showExamples) 
+}
+if ("wheel" %in% (params$Q1b) | ((params$Q1)!="no_input" & (params$Q1)!="WF")){
+  all <-appendChecklist(all, "emissionWheel_Stand", showExamples) 
+}
+cat(paste(sortItems(all)))
+```
+```{r, echo=FALSE, results='asis'}
+##### Microscope Specific-Stand and Motorized Components
+if (params$Q1 %in% c("SConfocal","PConfocal","MPhoton")){
+  cat(paste0("\\par\\vspace{-8mm}\\noindent\\color{white}\\colorbox{black}{\\strut\\makebox[\\dimexpr \\linewidth-2\\fboxsep][c]{",params$modality,"-Specific Hardware and Settings}}\\color{black}\\vspace{1mm}"))
+}
+all = ""
+if ((params$Q1)=="SConfocal") {
+  all <-appendChecklist(all, "Sconfocal_Stand", showExamples) 
+}
+if ((params$Q1)=="PConfocal") {
+  all <-appendChecklist(all, "Pconfocal_Stand", showExamples) 
+}
+if ((params$Q1)=="MPhoton") {
+  all <-appendChecklist(all, "Mphoton_Stand", showExamples) 
+}
+cat(paste(sortItems(all)))
+
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Illumination}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+if ((params$Q1)=="WF" & "LEDs" %in% (params$Q1c)) {
+    all <- appendChecklist(all, "WF_nolaser_Illumination", showExamples)
+}
+if ((params$Q1)=="WF" & "Lasers" %in% (params$Q1c)) {
+  all <- appendChecklist(all, "WF_laser_Illumination", showExamples)
+} 
+if ((params$Q1)=="SConfocal" & "Lasers" %in% (params$Q1c)) {
+  all <- appendChecklist(all, "Sconfocal_laser_Illumination", showExamples)
+} 
+if ((params$Q1)=="SConfocal" & "LEDs" %in% (params$Q1c)) {
+  all <- appendChecklist(all, "Sconfocal_LED_Illumination", showExamples)
+} 
+if ((params$Q1)=="PConfocal") {
+  all <- appendChecklist(all, "Pconfocal_Illumination", showExamples)
+}
+if ((params$Q1)=="MPhoton") {
+  all <- appendChecklist(all, "Mphoton_Illumination", showExamples)
+}
+cat(paste(sortItems(all)))
+
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Wavelength Selection}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+all <- appendChecklist(all, "All_Wave", showExamples)
+if ((params$Q1)=="WF" & "cube" %in% (params$Q1b)) {
+  all <- appendChecklist(all, "WF_filterCube_Wave", showExamples)
+}
+cat(paste(sortItems(all)))
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Optics}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+all <- appendChecklist(all, "all_Optics", showExamples)
+if ((params$Q2)=="Y") {
+  all <- appendChecklist(all, "transmitted_Optics", showExamples)
+}
+if ((params$Q3)=="Y") {
+  all <- appendChecklist(all, "mag_Optics", showExamples)
+}
+all <- str_replace_all(all,"character(0)","")
+cat(paste(sortItems(all)))
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Detection}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+if ((params$Q1)=="WF") {
+  all <- appendChecklist(all, "WF_Detection", showExamples)
+}
+if ((params$Q1)=="SConfocal") {
+  all <- appendChecklist(all, "Sconfocal_Detection", showExamples)
+}
+if ((params$Q1)=="PConfocal") {
+  all <- appendChecklist(all, "Pconfocal_Detection", showExamples)
+}
+if ((params$Q1)=="MPhoton") {
+  all <- appendChecklist(all, "Mphoton_Detection", showExamples)
+}
+cat(paste(sortItems(all)))
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Acquisition Software}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+all <- appendChecklist(all, "all_Software", showExamples)
+if (length(params$Q4)>0) {
+  all <- appendChecklist(all, "multiDim_Software", showExamples)
+}
+if ("multi-color" %in% (params$Q4)) {
+  all <- appendChecklist(all, "multiColor_Software", showExamples)
+}
+if ("z-stack" %in% (params$Q4)) {
+  all <- appendChecklist(all, "Z_stack_Software", showExamples)
+}
+if ("time-lapse" %in% (params$Q4)) {
+  all <- appendChecklist(all, "timeLapse_Software", showExamples)
+}
+if((params$Q6)=="Y"){
+  all <- appendChecklist(all, "timeLapse_Software", showExamples)
+}
+cat(paste(sortItems(all)))
+
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Sample Preparation}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+all <- appendChecklist(all, "all_Sample", showExamples)
+if ((params$Q7)=="Y") {
+  all <- appendChecklist(all, "live_Sample", showExamples)
+} else if((params$Q7)=="N"){
+  all <- appendChecklist(all, "fixed_Sample", showExamples)
+}
+if ("FP" %in% (params$Q8)) {
+  all <- appendChecklist(all, "FP_Sample", showExamples)
+}
+if ("Dye" %in% (params$Q8)) {
+  all <- appendChecklist(all, "dye_Sample", showExamples)
+}
+if ((params$Q9)=="Y") {
+  all <- appendChecklist(all, "transfect_Sample", showExamples)
+}
+cat(paste(sortItems(all)))
+
+```
+\par\vspace{-8mm}\noindent\color{white}\colorbox{black}{\strut\makebox[\dimexpr \linewidth-2\fboxsep][c]{Acknowledgements}}\color{black}\vspace{1mm}
+```{r, echo=FALSE, results='asis'}
+knitr::opts_chunk$set(echo = TRUE)
+all = ""
+if ((params$Q10)=="Y") {
+  all <- appendChecklist(all, "core_Ack", showExamples)
+}
+cat(paste(sortItems(all)))
+```
+\vfill
+\noindent For more information, check out our paper: Montero-Llopis et al., 2021 (citation) 
+
+
+\noindent Microscopy Metadata Checklist Generator (MicCheck) developed by Rebecca Senft (2021)
