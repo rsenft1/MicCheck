@@ -12,7 +12,7 @@ Microscopy Metadata Checklist Generator in Shiny
     <img src="excel_screenshot.png" />
 </p>
 
-4. Just change the text in the examples_new.txt file to your own personal examples. If you'd like to remove an example, place a " " blank space in the cell to preserve ordering of the examples
+4. Just change the text in the examples_new.txt file to your own personal examples. If you'd like to remove an example, place "NA, "N/A", "None" or a " " blank space in the cell to preserve ordering of the examples
 5. Tip: avoid special characters as Shiny.io requires pdflatex and doesn't play well with special unicode characters such as the symbol for "mu"
     * The current R shiny app can deal with base letters, "#", "%", "/", and "^" characters. Others may trigger special meanings when compiled into pdfs with latex but should still display correctly online.
 6. To run MicCheck from RStudio, open the MicCheck.R file and hit the Run App button
