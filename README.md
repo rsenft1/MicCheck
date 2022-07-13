@@ -1,5 +1,10 @@
 # MicCheck
 Microscopy Metadata Checklist Generator in Shiny
+
+## To use MicCheck, follow [this link](https://rebecca-senft.shinyapps.io/MicCheck/).
+
+Reference article:
+Montero Llopis, P., Senft, R. A., Ross-elliott, T. J., Stephansky, R., Keeley, D. P., Koshar, P., Marqués, G., Gao, Y., Carlson, B. R., Pengo, T., Sanders, M. A., Cameron, L. A., & Itano, M. S. (2021). Best practices and tools for reporting reproducible fluorescence microscopy methods. Nature Methods, 18(12), 1463-1476. https://doi.org/10.1038/s41592-021-01156-w
 <p>
     <img src="MicCheck_UI.png" />
 </p>
